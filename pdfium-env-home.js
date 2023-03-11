@@ -11,5 +11,6 @@ if (process.env.PDFIUM_HOME) {
 } else {
     home = path.join(__dirname, process.env.TARGET_ARCH);
 }
+home = home.replace(/\\/g, '/')
 
 process.stdout.write(home)
