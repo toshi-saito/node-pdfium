@@ -1,43 +1,39 @@
 #include "pdfium_option.h"
 
-#define INIT_PDFIUM_OPTION(name, type)                                           \
-    if (obj->Has(Nan::GetCurrentContext(), Nan::New< v8::String>(#name).ToLocalChecked()).ToChecked())            \
+#define INIT_PDFIUM_OPTION(name)                                           \
+    if (obj.Has(#name))            \
     {                                                                      \
-        ops->name = Nan::To< type>(                                    \
-            Nan::Get(obj, Nan::New< v8::String>(#name).ToLocalChecked()).ToLocalChecked()) \
-                        .FromJust();                                    \
+        ops->name = (obj).Get(#name).ToNumber().Int32Value() ;                                    \
     }
 
 namespace node_pdfium
 {
-std::unique_ptr<PdfiumOption> V8OptionToStruct(const v8::Local<v8::Value> &options)
+std::unique_ptr<PdfiumOption> V8OptionToStruct(const Napi::Value &options)
 {
     auto ops = std::make_unique<PdfiumOption>();
-    if (options->IsObject())
+    if (options.IsObject())
     {
-        auto obj = options->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
+        auto obj = options.ToObject();
+        auto &env = options.Env();
 
-        INIT_PDFIUM_OPTION(dpi, int32_t);
-        INIT_PDFIUM_OPTION(copies, int32_t);
-        INIT_PDFIUM_OPTION(width, int32_t);
-        INIT_PDFIUM_OPTION(height, int32_t);
-        INIT_PDFIUM_OPTION(fit, int32_t);
+        INIT_PDFIUM_OPTION(dpi);
+        INIT_PDFIUM_OPTION(copies);
+        INIT_PDFIUM_OPTION(width);
+        INIT_PDFIUM_OPTION(height);
+        INIT_PDFIUM_OPTION(fit);
 
         ops->dpi = ops->dpi / 72;
 
-        if (obj->Has(Nan::GetCurrentContext(), Nan::New<v8::String>("pageList").ToLocalChecked()).ToChecked())
+        if (obj.Has("pageList"))
         {
-            auto o = Nan::Get(obj,
-                              Nan::New<v8::String>("pageList")
-                                  .ToLocalChecked())
-                         .ToLocalChecked();
-            auto arr = v8::Local<v8::Array>::Cast(o);
-            for (unsigned int i = 0; i < arr->Length(); ++i)
+            auto& pageList = obj.Get("pageList") ;
+            Napi::Array& arr = pageList.As<Napi::Array>();
+            for (unsigned int i = 0; i < arr.Length(); ++i)
             {
-                const auto &item = v8::Local<v8::Array>::Cast(Nan::Get(arr, i).ToLocalChecked());
+                const Napi::Array& item = (arr.Get(i)).As<Napi::Array>();
                 auto pair = std::make_pair(
-                    Nan::To<int32_t>(Nan::Get(arr, 0).ToLocalChecked()).FromJust(),
-                    Nan::To<int32_t>(Nan::Get(arr, 1).ToLocalChecked()).FromJust());
+                    item.Get(static_cast<unsigned int>(0)).As<Napi::Number>().Int32Value(),
+                    item.Get(static_cast<unsigned int>(1)).As<Napi::Number>().Int32Value());
                 ops->page_list.push_back(std::move(pair));
             }
         }

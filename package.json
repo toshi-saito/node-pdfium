@@ -1,6 +1,6 @@
 {
   "name": "node-pdfium",
-  "version": "2.0.0",
+  "version": "2.1.2",
   "description": "node bindings for pdfium",
   "main": "index.js",
   "os": [
@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/renaesop/node-pdfium#readme",
   "dependencies": {
-    "bindings": "^1.4.0",
-    "nan": "^2.14.0"
+    "bindings": "^1.5.0",
+    "node-addon-api": "3.0.2"
   },
   "devDependencies": {
     "mocha": "^6.1.4"

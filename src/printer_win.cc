@@ -3,21 +3,23 @@
 
 namespace node_pdfium
 {
-Unique_HDC GetPrinterDC(const v8::Local<v8::Value> &printerName)
+Unique_HDC GetPrinterDC(const Napi::Value &printerName)
 {
-    const v8::Local<v8::String> printerNameV8Str = printerName->ToString(Nan::GetCurrentContext()).ToLocalChecked();
+    const Napi::String printerNameV8Str = printerName.ToString();
 
-    Unique_HDC printerDC(::CreateDCW(L"WINSPOOL", reinterpret_cast<LPCWSTR>(*v8::String::Value(v8::Isolate::GetCurrent(), printerNameV8Str)), NULL, NULL));
+    // std::cout << "printer name" << printerNameV8Str.Utf8Value() << std::endl;
+
+    Unique_HDC printerDC(::CreateDCW(L"WINSPOOL", reinterpret_cast<LPCWSTR>(printerNameV8Str.Utf16Value().c_str()), NULL, NULL));
 
     return printerDC;
 }
-Unique_HPrinter GetPrinterHanlde(const v8::Local<v8::Value> &printerName)
+Unique_HPrinter GetPrinterHanlde(const Napi::Value &printerName)
 {
-    const v8::Local<v8::String> printerNameV8Str = printerName->ToString(Nan::GetCurrentContext()).ToLocalChecked();
+    const Napi::String printerNameV8Str = printerName.ToString();
 
     HANDLE handle = NULL;
 
-    ::OpenPrinterW(reinterpret_cast<LPWSTR>(*v8::String::Value(v8::Isolate::GetCurrent(), printerNameV8Str)), &handle, NULL);
+    ::OpenPrinterA(const_cast<LPSTR>(printerNameV8Str.Utf8Value().c_str()), &handle, NULL);
 
     Unique_HPrinter printerH(handle);
 
