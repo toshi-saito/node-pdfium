@@ -9,7 +9,7 @@ if (os.platform() !== 'win32') {
 if (process.env.PDFIUM_HOME) {
     home = process.env.PDFIUM_HOME;
 } else {
-    home = path.join(__dirname, process.env.TARGET_ARCH || "x64");
+    home = path.join(__dirname, process.env.TARGET_ARCH);
 }
 home = home.replace(/\\/g, '/')
 
